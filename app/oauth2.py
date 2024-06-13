@@ -1,5 +1,5 @@
 from jose import jwt, JWTError # jwt stands for "JSON Web Token"
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from . import schemas
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -14,8 +14,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes * 24
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    # expire = datetime.now(datetime.UTC) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    # expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({'exp': expire})
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -42,7 +42,7 @@ def verify_access_token(token: str, credentials_exception):
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="login")
 def get_current_user(token: str = Depends(oauth2_schema)):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                          detail='Could not validate hehe credentials',
+                                          detail='Could not validate credentials',
                                           headers={'WWW-Authenticate': 'Bearer'})
     
     return verify_access_token(token, credentials_exception)

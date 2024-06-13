@@ -2,7 +2,7 @@ from typing_extensions import Annotated
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from typing import Optional
-
+from pydantic.config import ConfigDict
 
 class PostBase(BaseModel):
     title: str
@@ -19,9 +19,10 @@ class UserOut(BaseModel):
     email: EmailStr
     created_at: datetime
 
-    class Config:  # this is mandatory only for response of API. maybe cause of SQLAlchemy IDK.
-        # orm_mode = True
-        from_attributes = True
+    model_config = ConfigDict(
+        from_attributes=True
+    )  # this is mandatory only for response of API. maybe cause of SQLAlchemy IDK.
+    
 
 
 class Post(PostBase):
@@ -30,19 +31,15 @@ class Post(PostBase):
     user_id: int
     user: UserOut 
 
-    class Config:
-        # orm_mode = True
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PostOut(BaseModel):
     Post: Post
     votes: int
 
-    class Config:  
-        # orm_mode = True
-        from_attributes = True
-
+    model_config = ConfigDict(from_attributes=True)
+    
 
 
 class UserCreate(BaseModel):
@@ -68,4 +65,3 @@ class TokenData(BaseModel):
 class Vote(BaseModel):
     post_id: int
     dir: Annotated[int, Field(ge=0, le=1)] # It accepts only 0 or 1
-
